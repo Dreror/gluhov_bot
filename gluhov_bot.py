@@ -1,6 +1,5 @@
 import asyncio
 import re
-import datetime
 import aiogram.types
 from aiogram import Bot, Router, Dispatcher, F
 from aiogram.types import Message
@@ -25,18 +24,34 @@ async def new_chat_members(message: Message):
 
 
 @dp.message(F.content_type.in_(aiogram.types.ContentType.LEFT_CHAT_MEMBER))
-async def new_chat_members1(message: Message):
+async def exit_chat_members(message: Message):
     message_id = message.message_id
     chat_id = message.chat.id
     await bot.delete_message(chat_id=chat_id, message_id=message_id)
 
 
-@dp.message(F.text.startswith("https", "http", "t.me"))
+count_warn = 0
+
+
+@dp.message(F.text.count("https") & F.text.count("http") & F.text.count("t.me"))
 async def delete_spam(message: Message):
+    global count_warn
     message_id = message.message_id
     chat_id = message.chat.id
-    await message.answer("☝🏻 У чаті заборонено публікувати будь-які посилання, оскільки вони можуть нести рекламний характер шахраїв")
-    await bot.delete_message(chat_id=chat_id, message_id=message_id)
+    if message.from_user.id != 560303324:
+        if count_warn != 1:
+            await message.answer(f"☝🏻@{message.from_user.username}, у чаті заборонено публікувати будь-які посилання, оскільки вони можуть нести рекламний характер шахраїв")
+            await bot.delete_message(chat_id=chat_id, message_id=message_id)
+            count_warn = count_warn + 1
+        else:
+            await bot.delete_message(chat_id=chat_id, message_id=message_id)
+            await delete_count()
+
+
+async def delete_count():
+    global count_warn
+    await asyncio.sleep(1800)
+    count_warn = 0
 
 
 async def main() -> None:
@@ -44,5 +59,4 @@ async def main() -> None:
     await dp.start_polling(bot)
 
 
-if __name__ == "__main__":
-    asyncio.run(main())
+asyncio.run(main())
