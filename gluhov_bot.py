@@ -12,27 +12,28 @@ from aiogram.exceptions import TelegramBadRequest
 
 router = Router()
 router.message.filter(F.chat.type == "supergroup")
-bot = Bot("7189683921:AAFik6MriJ-mIl5Ay2yM1P_C5hP94MkAcgo")
+bot = Bot("6018117667:AAF3wYw6mzwc6bNv5mq4dl5ZwQzmXQtAQOY")
 dp = Dispatcher()
-
-
-@dp.message(Command("start"))
-async def start(message: Message):
-    await message.answer("Бот работает")
-
-
-@dp.message(F.text == "Тот самый")
-async def on_tot(message: Message):
-    chat_id = message.chat.id
-    message_for_delete = await bot.send_message(chat_id=chat_id, text="Никита гей")
-    await asyncio.sleep(10)
-    await bot.delete_message(chat_id=chat_id, message_id=message_for_delete.message_id)
 
 
 count_warn = 0
 
 
-@dp.message(F.text.count("https") & F.text.count("http") & F.text.count("t.me") & F.text.count("www"))
+@dp.message(F.content_type.in_(aiogram.types.ContentType.NEW_CHAT_MEMBERS))
+async def new_member(message: Message):
+    message_id = message.message_id
+    chat_id = message.chat.id
+    await bot.delete_message(chat_id=chat_id, message_id=message_id)
+
+
+@dp.message(F.content_type.in_(aiogram.types.ContentType.LEFT_CHAT_MEMBER))
+async def exit_member(message: Message):
+    message_id = message.message_id
+    chat_id = message.chat.id
+    await bot.delete_message(chat_id=chat_id, message_id=message_id)
+
+
+@dp.message(F.text.count("https") | F.text.count("http") | F.text.count("t.me") | F.text.count("www"))
 async def delete_spam(message: Message):
     global count_warn
     message_id = message.message_id
@@ -45,7 +46,7 @@ async def delete_spam(message: Message):
             )
             await bot.delete_message(chat_id=chat_id, message_id=message_id)
             count_warn = count_warn + 1
-            await asyncio.sleep(10)
+            await asyncio.sleep(1800)
             await bot.delete_message(chat_id=message_for_delete.chat.id, message_id=message_for_delete.message_id)
         else:
             await bot.delete_message(chat_id=chat_id, message_id=message_id)
@@ -54,7 +55,7 @@ async def delete_spam(message: Message):
 
 async def delete_count():
     global count_warn
-    await asyncio.sleep(20)
+    await asyncio.sleep(1800)
     count_warn = 0
 
 
@@ -63,4 +64,5 @@ async def main() -> None:
     await dp.start_polling(bot)
 
 
+print("Bot is working")
 asyncio.run(main())
