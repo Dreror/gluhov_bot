@@ -33,7 +33,8 @@ async def exit_member(message: Message):
     await bot.delete_message(chat_id=chat_id, message_id=message_id)
 
 
-@dp.message(F.text.count("https") | F.text.count("http") | F.text.count("t.me") | F.text.count("www"))
+@dp.message(F.text.count("https") | F.text.count("http") | F.text.count("t.me") | F.text.count("www") | F.text.count(".com") | F.text.count(".org")
+            | F.text.count(".net"))
 async def delete_spam(message: Message):
     global count_warn
     message_id = message.message_id
