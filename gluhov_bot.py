@@ -39,7 +39,16 @@ async def delete_spam(message: Message):
     global count_warn
     message_id = message.message_id
     chat_id = message.chat.id
-    if message.from_user.id != 560303324:
+    member_id = message.from_user.id
+    get_member = await bot.get_chat_member(chat_id, member_id)
+    member_status = get_member.status
+    admin = aiogram.enums.ChatMemberStatus.LEFT
+    creator = aiogram.enums.ChatMemberStatus.CREATOR
+    if member_status == creator:
+        pass
+    elif member_status == admin:
+        pass
+    else:
         if count_warn != 1:
             message_for_delete = await bot.send_message(
                 chat_id=chat_id,
